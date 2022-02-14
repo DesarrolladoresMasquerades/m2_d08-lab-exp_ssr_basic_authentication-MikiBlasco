@@ -65,26 +65,35 @@ router
 
   router.get('/main', (req, res) => {
     const id = req.session.currentUserId;
-    User.findById(id)
-    .then((user)=> res.render("main", user))
-    .catch(err=>console.log(err));
-  });
+    
 
-  router.get("/logout", (req,res)=>{
-    req.session.destroy((err)=>{
-      console.log("a tu casa")
-      res.redirect("/")
-    }
-  )})
+    User.findById(id)
+    .then((user)=> {
+        if(!user){throw new Error("Validation error!")}
+        res.render("main", user)})
+    .catch((err)=>{
+        res.render("index", {errorMessage: err})
+        console.log(err)});
+      
+  });
 
   router.get('/private', (req, res)=>{
       const id = req.session.currentUserId;
       if(id){
+
+          User.findById(id)
+          .then((user)=> res.render("private, user"))
+          .catch(err=>console.log(err));
+
           res.render('private');
-      } else {
-          res.render('login', {errorMessage: "You cahe to be logged to get in this page"})
-  }
+      } 
 });
+
+router.get("/logout", (req,res)=>{
+    req.session.destroy((err)=>{
+      res.redirect("/")
+    }
+  )})
 
 
 module.exports = router;
